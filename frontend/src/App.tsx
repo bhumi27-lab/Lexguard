@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
-import Analysis from './pages/Analysis'
+import Analysis from './pages/Analysis.tsx'
 
 export default function App() {
   return (

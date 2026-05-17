@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,105 +10,211 @@
   }
 
   body {
-    background-color: #0A0E1A;
-    color: #F1F5F9;
+    background-color: #0A0A0A;
+    color: #F5F0E8;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  ::-webkit-scrollbar          { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track    { background: #0F1629; }
-  ::-webkit-scrollbar-thumb    { background: #1E2A45; border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: #1B4FD8; }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0A0A0A;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1A1A1A;
+    border: 1px solid rgba(201, 168, 76, 0.15);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #C9A84C;
+  }
 }
 
 @layer components {
-  /* ── Glass card ── */
+  /* ── Glassmorphism Card ── */
   .glass-card {
-    background: rgba(20, 27, 45, 0.85);
+    background: rgba(17, 17, 17, 0.85);
     backdrop-filter: blur(12px);
-    border: 1px solid #1E2A45;
+    border: 1px solid rgba(201, 168, 76, 0.15);
     border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+  }
+
+  /* ── Gold Shimmer Loading / Skeleton Effect ── */
+  .skeleton-gold {
+    background: linear-gradient(90deg, #111111 0%, #1A160F 50%, #111111 100%);
+    background-size: 1000px 100%;
+    animation: goldShimmer 2s infinite linear;
+    border-radius: 6px;
+    border: 1px solid rgba(201, 168, 76, 0.08);
+  }
+
+  @keyframes goldShimmer {
+    0% {
+      background-position: -500px 0;
+    }
+    100% {
+      background-position: 500px 0;
+    }
+  }
+
+  /* ── Custom Diagonal Grid Pattern ── */
+  .bg-grid-faint {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(201, 168, 76, 0.015) 0px,
+      rgba(201, 168, 76, 0.015) 1px,
+      transparent 0px,
+      transparent 10px
+    );
+  }
+
+  /* ── Slow Animated Hero Glow ── */
+  .bg-hero-radial {
+    background: radial-gradient(
+      circle,
+      rgba(201, 168, 76, 0.05) 0%,
+      rgba(139, 105, 20, 0.01) 50%,
+      transparent 100%
+    );
+    animation: radialGlow 15s ease infinite alternate;
+  }
+
+  @keyframes radialGlow {
+    0% {
+      transform: scale(0.9) translate(0px, 0px);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.05) translate(10px, -5px);
+      opacity: 1.1;
+    }
+    100% {
+      transform: scale(1.15) translate(-10px, 10px);
+      opacity: 1.3;
+    }
+  }
+
+  /* ── Soft Gold Shadows ── */
+  .shadow-gold-soft {
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.12);
+  }
+
+  /* ── Drag & Drop Box ── */
+  .drop-zone-premium {
+    border: 2px dashed rgba(201, 168, 76, 0.25);
+    border-radius: 16px;
+    background: rgba(17, 17, 17, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .drop-zone-premium.dragging {
+    border: 2px solid #C9A84C;
+    background: rgba(201, 168, 76, 0.06);
+    box-shadow: 0 0 30px rgba(201, 168, 76, 0.25), inset 0 0 20px rgba(201, 168, 76, 0.05);
   }
 
   /* ── Risk badges ── */
-  .badge-high {
+  .badge-premium-high {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 12px;
+    padding: 5px 14px;
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: rgba(239,68,68,0.12);
+    background: rgba(139, 0, 0, 0.2);
     color: #F87171;
-    border: 1px solid rgba(239,68,68,0.35);
+    border: 1px solid rgba(139, 0, 0, 0.5);
   }
-  .badge-medium {
+  .badge-premium-medium {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 12px;
+    padding: 5px 14px;
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: rgba(245,158,11,0.12);
+    background: rgba(139, 105, 20, 0.2);
     color: #FCD34D;
-    border: 1px solid rgba(245,158,11,0.35);
+    border: 1px solid rgba(139, 105, 20, 0.5);
   }
-  .badge-low {
+  .badge-premium-low {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 12px;
+    padding: 5px 14px;
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    background: rgba(16,185,129,0.12);
+    background: rgba(44, 74, 46, 0.2);
     color: #34D399;
-    border: 1px solid rgba(16,185,129,0.35);
+    border: 1px solid rgba(44, 74, 46, 0.5);
   }
 
-  /* ── Skeleton shimmer ── */
-  .skeleton {
-    background: linear-gradient(90deg, #0F1629 0%, #1E2A45 50%, #0F1629 100%);
-    background-size: 1000px 100%;
-    animation: shimmer 1.8s infinite linear;
-    border-radius: 6px;
+  /* ── Loading step pulse ── */
+  .loading-step-pulse {
+    animation: goldStepPulse 2s infinite alternate;
+  }
+  @keyframes goldStepPulse {
+    0% {
+      box-shadow: 0 0 5px rgba(201, 168, 76, 0.3);
+      border-color: rgba(201, 168, 76, 0.4);
+    }
+    100% {
+      box-shadow: 0 0 20px rgba(201, 168, 76, 0.7);
+      border-color: #C9A84C;
+    }
   }
 
-  /* ── Agent card borders ── */
-  .agent-defender  { border-left: 3px solid #EF4444; }
-  .agent-prosecutor { border-left: 3px solid #1B4FD8; }
-  .agent-judge      { border-left: 3px solid #10B981; }
-
-  /* ── Drop zone ── */
-  .drop-zone {
-    border: 2px dashed #1E2A45;
-    border-radius: 16px;
-    transition: all 0.25s ease;
+  /* ── High Risk Pulsing ── */
+  .high-risk-pulse {
+    animation: crimsonPulse 1.8s infinite;
   }
-  .drop-zone.dragging {
-    border-color: #1B4FD8;
-    background: rgba(27,79,216,0.07);
-    box-shadow: 0 0 30px rgba(27,79,216,0.2), inset 0 0 30px rgba(27,79,216,0.05);
+  @keyframes crimsonPulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(139, 0, 0, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(139, 0, 0, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(139, 0, 0, 0);
+    }
   }
 }
 
 @layer utilities {
-  .text-glow {
-    text-shadow: 0 0 30px rgba(27,79,216,0.6), 0 0 60px rgba(27,79,216,0.3);
+  .font-cinzel {
+    font-family: 'Cinzel', 'Playfair Display', 'Georgia', serif;
+  }
+  .text-gold {
+    color: #C9A84C;
+  }
+  .bg-gold {
+    background-color: #C9A84C;
+  }
+  .border-gold-low {
+    border-color: rgba(201, 168, 76, 0.15);
+  }
+  .text-glow-gold {
+    text-shadow: 0 0 15px rgba(201, 168, 76, 0.35);
   }
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
