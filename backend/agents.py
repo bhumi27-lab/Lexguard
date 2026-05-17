@@ -4,21 +4,10 @@ import re
 import textwrap
 from typing import Any
 
+# pyrefly: ignore [missing-import]
 import google.generativeai as genai
-
-# ---------------------------------------------------------------------------
-# Client initialisation
-# ---------------------------------------------------------------------------
-
-_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-if not _API_KEY:
-    raise EnvironmentError(
-        "GEMINI_API_KEY environment variable is not set. "
-        "Export it before starting the server."
-    )
-
-genai.configure(api_key=_API_KEY)
-_MODEL = genai.GenerativeModel("gemini-1.5-flash")
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -29,7 +18,7 @@ _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*([\s\S]*?)```", re.IGNORECASE)
 
 def _call_gemini(prompt: str) -> str:
     """Send a prompt to Gemini and return the raw text response."""
-    response = _MODEL.generate_content(
+    response = model.generate_content(
         prompt,
         generation_config=genai.types.GenerationConfig(
             temperature=0.3,

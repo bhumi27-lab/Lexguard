@@ -1,4 +1,5 @@
 import re
+# pyrefly: ignore [missing-import]
 import pdfplumber
 from typing import BinaryIO
 

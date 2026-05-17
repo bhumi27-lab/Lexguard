@@ -7,8 +7,11 @@ import io
 import os
 from contextlib import asynccontextmanager
 
+# pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, File, HTTPException, UploadFile
+# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 
 # Load .env if present (dev convenience; production should set vars directly)
@@ -211,6 +214,7 @@ async def analyze(file: UploadFile = File(...)):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
+    # pyrefly: ignore [missing-import]
     import uvicorn
 
     port = int(os.environ.get("PORT", 8000))

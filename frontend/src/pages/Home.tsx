@@ -375,12 +375,74 @@ function LegalBackground() {
 export default function Home() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
+
   const [isDragging, setIsDragging] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+
+  /* ── Vanta.js via CDN script tags (ES module import does NOT work with Vanta) ── */
+  const vantaRef = useRef<HTMLDivElement>(null)
+  const vantaEffect = useRef<any>(null)
+
+  useEffect(() => {
+    // Helper: load a script tag and resolve when done
+    const loadScript = (src: string): Promise<void> =>
+      new Promise((resolve, reject) => {
+        // Don't add the same script twice
+        if (document.querySelector(`script[src="${src}"]`)) {
+          resolve()
+          return
+        }
+        const s = document.createElement('script')
+        s.src = src
+        s.async = true
+        s.onload = () => resolve()
+        s.onerror = () => reject(new Error(`Failed to load ${src}`))
+        document.head.appendChild(s)
+      })
+
+    const initVanta = async () => {
+      try {
+        // 1. Load THREE first — Vanta depends on it being on window
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js')
+        // 2. Then load Vanta dots
+        await loadScript('https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.dots.min.js')
+
+        // 3. Init only once
+        if (vantaRef.current && !(window as any).VANTA === false && !vantaEffect.current) {
+          vantaEffect.current = (window as any).VANTA.DOTS({
+            el: vantaRef.current,
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200,
+            minWidth: 200,
+            scale: 1.0,
+            scaleMobile: 1.0,
+            color: 0xc9a84c,
+            color2: 0xb8860b,
+            backgroundColor: 0x0a0a0a,
+            size: 7.5,
+            spacing: 150,
+            showLines: false,
+          })
+        }
+      } catch (e) {
+        console.warn('Vanta failed to load:', e)
+      }
+    }
+
+    initVanta()
+
+    return () => {
+      if (vantaEffect.current) {
+        vantaEffect.current.destroy()
+        vantaEffect.current = null
+      }
+    }
+  }, [])
 
   useEffect(() => {
     let interval: any
@@ -463,550 +525,550 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] relative overflow-x-hidden font-sans text-[#F5F0E8] select-none">
-      
-      {/* PART 1 — ANIMATED LEGAL BACKGROUND */}
-      <LegalBackground />
+    <div
+      ref={vantaRef}
+      className="min-h-screen bg-[#0A0A0A] relative overflow-x-hidden font-sans text-[#F5F0E8] select-none"
+      style={{ minHeight: '100vh', width: '100%' }}
+    >
+      {/* All content needs z-index above Vanta canvas */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
-      {/* Background Aesthetics */}
-      <div className="pointer-events-none fixed inset-0 bg-grid-faint opacity-40 z-0" />
+        {/* PART 1 — ANIMATED LEGAL BACKGROUND */}
+        <LegalBackground />
 
-      {/* ── PART 2 — HERO SECTION ── */}
-      <div className="relative min-h-screen flex flex-col justify-between z-10 w-full max-w-7xl mx-auto px-6">
-        
-        {/* Nav Header Row */}
-        <header className="w-full flex items-center justify-between py-6 border-b border-[#C9A84C]/15 backdrop-blur-md bg-[#0A0A0A]/40 relative z-20">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded bg-[#111111] border border-[#C9A84C]/35 flex items-center justify-center shadow-gold-soft">
-              <Gavel className="w-4 h-4 text-[#C9A84C]" />
-            </div>
-            <span className="font-cinzel text-xl font-bold tracking-wider">
-              <span className="text-[#F5F0E8]">Lex</span>
-              <span className="text-[#C9A84C]">Guard</span>
-            </span>
-          </div>
-          <span className="text-[10px] text-[#F5F0E8] font-mono tracking-widest uppercase border border-[#C9A84C]/25 rounded-full px-4 py-1.5 bg-[#111111]">
-            AI Contract Courtroom
-          </span>
-        </header>
+        {/* Background Aesthetics */}
+        <div className="pointer-events-none fixed inset-0 bg-grid-faint opacity-40 z-0" />
 
-        {/* Central Hero Body */}
-        <div className="flex-1 flex flex-col items-center justify-center py-20 relative">
-          
-          {/* Subtle slow pulsing radial gradient behind hero */}
-          <motion.div
-            animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.8, 1.2, 0.8] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(201,168,76,0.05)_0%,transparent_60%)] z-0"
-          />
+        {/* ── PART 2 — HERO SECTION ── */}
+        <div className="relative min-h-screen flex flex-col justify-between z-10 w-full max-w-7xl mx-auto px-6">
 
-          <div className="relative z-10 text-center w-full">
-            
-            {/* Logo Row */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="flex flex-col items-center mb-6"
-            >
-              <span className="font-cinzel text-5xl md:text-6xl font-black tracking-widest">
-                <span className="text-[#F5F0E8]">LEX</span>
-                <span className="text-[#C9A84C] text-glow-gold">GUARD</span>
+          {/* Nav Header Row */}
+          <header className="w-full flex items-center justify-between py-6 border-b border-[#C9A84C]/15 backdrop-blur-md bg-[#0A0A0A]/40 relative z-20">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded bg-[#111111] border border-[#C9A84C]/35 flex items-center justify-center shadow-gold-soft">
+                <Gavel className="w-4 h-4 text-[#C9A84C]" />
+              </div>
+              <span className="font-cinzel text-xl font-bold tracking-wider">
+                <span className="text-[#F5F0E8]">Lex</span>
+                <span className="text-[#C9A84C]">Guard</span>
               </span>
-              {/* Thin gold horizontal divider line below logo */}
-              <div className="w-32 h-[1px] bg-[#C9A84C] mt-4" />
-            </motion.div>
+            </div>
+            <span className="text-[10px] text-[#F5F0E8] font-mono tracking-widest uppercase border border-[#C9A84C]/25 rounded-full px-4 py-1.5 bg-[#111111]">
+              AI Contract Courtroom
+            </span>
+          </header>
 
-            {/* Tagline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.7 }}
-              className="text-4xl md:text-5xl font-serif italic text-[#F5F0E8] tracking-tight mb-6"
-            >
-              Sign informed. Not blind.
-            </motion.h1>
+          {/* Central Hero Body */}
+          <div className="flex-1 flex flex-col items-center justify-center py-20 relative">
 
-            {/* Sub-tagline */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.45, duration: 0.8 }}
-              className="text-lg md:text-xl text-[#F5F0E8] max-w-2xl mx-auto leading-relaxed mb-10 font-sans"
-            >
-              Three AI agents debate every risky clause in your contract — then simulate the consequences month by month.
-            </motion.p>
-
-            {/* Three stat badges */}
+            {/* Subtle slow pulsing radial gradient behind hero */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex items-center justify-center gap-4 flex-wrap mb-14"
-            >
-              <div className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#111111] border border-[#C9A84C] text-[#C9A84C] text-sm font-semibold tracking-wider font-cinzel">
-                <Shield className="w-4 h-4 text-[#C9A84C]" />
-                <span className="text-[#F5F0E8]">3 AI AGENTS</span>
-              </div>
-              <div className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#111111] border border-[#C9A84C] text-[#C9A84C] text-sm font-semibold tracking-wider font-cinzel">
-                <Scale className="w-4 h-4 text-[#C9A84C]" />
-                <span className="text-[#F5F0E8]">8 CLAUSE TYPES</span>
-              </div>
-              <div className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#111111] border border-[#C9A84C] text-[#C9A84C] text-sm font-semibold tracking-wider font-cinzel">
-                <Clock className="w-4 h-4 text-[#C9A84C]" />
-                <span className="text-[#F5F0E8]">2YR SIMULATION</span>
-              </div>
-            </motion.div>
+              animate={{ scale: [0.95, 1.05, 0.95], opacity: [0.8, 1.2, 0.8] }}
+              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(201,168,76,0.05)_0%,transparent_60%)] z-0"
+            />
 
-            {/* ── PART 3 — UPLOAD SECTION ── */}
-            <motion.div
-              animate={{ y: [0, -4, 0] }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              className="w-full max-w-[600px] mx-auto z-10"
-            >
-              <div className="bg-[#111111] border border-[#1A1A1A] hover:border-[#C9A84C]/50 rounded-2xl p-8 shadow-gold-soft transition-all duration-300 relative group">
-                {/* Corner details */}
-                <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-[#C9A84C]/30" />
-                <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-[#C9A84C]/30" />
-                <div className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-[#C9A84C]/30" />
-                <div className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-[#C9A84C]/30" />
+            <div className="relative z-10 text-center w-full">
 
-                <div
-                  className={`p-10 flex flex-col items-center gap-5 cursor-pointer rounded-xl transition-all duration-300 ${
-                    isDragging
+              {/* Logo Row */}
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                className="flex flex-col items-center mb-6"
+              >
+                <span className="font-cinzel text-5xl md:text-6xl font-black tracking-widest">
+                  <span className="text-[#F5F0E8]">LEX</span>
+                  <span className="text-[#C9A84C] text-glow-gold">GUARD</span>
+                </span>
+                {/* Thin gold horizontal divider line below logo */}
+                <div className="w-32 h-[1px] bg-[#C9A84C] mt-4" />
+              </motion.div>
+
+              {/* Tagline */}
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.7 }}
+                className="text-4xl md:text-5xl font-serif italic text-[#F5F0E8] tracking-tight mb-6"
+              >
+                Sign informed. Not blind.
+              </motion.h1>
+
+              {/* Sub-tagline */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45, duration: 0.8 }}
+                className="text-lg md:text-xl text-[#F5F0E8] max-w-2xl mx-auto leading-relaxed mb-10 font-sans"
+              >
+                Three AI agents debate every risky clause in your contract — then simulate the consequences month by month.
+              </motion.p>
+
+              {/* Three stat badges */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="flex items-center justify-center gap-4 flex-wrap mb-14"
+              >
+                <div className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#111111] border border-[#C9A84C] text-[#C9A84C] text-sm font-semibold tracking-wider font-cinzel">
+                  <Shield className="w-4 h-4 text-[#C9A84C]" />
+                  <span className="text-[#F5F0E8]">3 AI AGENTS</span>
+                </div>
+                <div className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#111111] border border-[#C9A84C] text-[#C9A84C] text-sm font-semibold tracking-wider font-cinzel">
+                  <Scale className="w-4 h-4 text-[#C9A84C]" />
+                  <span className="text-[#F5F0E8]">8 CLAUSE TYPES</span>
+                </div>
+                <div className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#111111] border border-[#C9A84C] text-[#C9A84C] text-sm font-semibold tracking-wider font-cinzel">
+                  <Clock className="w-4 h-4 text-[#C9A84C]" />
+                  <span className="text-[#F5F0E8]">2YR SIMULATION</span>
+                </div>
+              </motion.div>
+
+              {/* ── PART 3 — UPLOAD SECTION ── */}
+              <motion.div
+                animate={{ y: [0, -4, 0] }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+                className="w-full max-w-[600px] mx-auto z-10"
+              >
+                <div className="bg-[#111111] border border-[#1A1A1A] hover:border-[#C9A84C]/50 rounded-2xl p-8 shadow-gold-soft transition-all duration-300 relative group">
+                  {/* Corner details */}
+                  <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-[#C9A84C]/30" />
+                  <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-[#C9A84C]/30" />
+                  <div className="absolute bottom-2 left-2 w-3 h-3 border-b border-l border-[#C9A84C]/30" />
+                  <div className="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-[#C9A84C]/30" />
+
+                  <div
+                    className={`p-10 flex flex-col items-center gap-5 cursor-pointer rounded-xl transition-all duration-300 ${isDragging
                       ? 'border-2 border-[#C9A84C] bg-[#C9A84C]/5 shadow-[inset_0_0_20px_rgba(201,168,76,0.1)]'
                       : 'border-2 border-dashed border-[#C9A84C]/25 bg-[#0A0A0A]/40'
-                  }`}
-                  onDragOver={onDragOver}
-                  onDragLeave={onDragLeave}
-                  onDrop={onDrop}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <div className="w-16 h-16 rounded-full bg-[#0A0A0A] border border-[#C9A84C]/30 flex items-center justify-center shadow-gold-soft group-hover:border-[#C9A84C] transition-colors">
-                    <Upload className="w-8 h-8 text-[#C9A84C]" />
-                  </div>
-
-                  <div className="text-center">
-                    <p className="text-2xl font-serif text-[#F5F0E8] font-bold mb-2">
-                      {isDragging ? 'Relinquish contract here' : 'Upload your contract'}
-                    </p>
-                    <p className="text-base text-[#F5F0E8] leading-relaxed max-w-sm mx-auto">
-                      PDF up to 20MB — Employment, Freelance, SaaS, Rental, Privacy Policy
-                    </p>
-                  </div>
-
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".pdf,application/pdf"
-                    className="hidden"
-                    onChange={onFileChange}
-                  />
-                </div>
-
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-4 flex items-start gap-3 bg-[#8B0000]/10 border border-[#8B0000]/30 rounded-xl px-4 py-3 text-red-400 text-xs"
+                      }`}
+                    onDragOver={onDragOver}
+                    onDragLeave={onDragLeave}
+                    onDrop={onDrop}
+                    onClick={() => fileInputRef.current?.click()}
                   >
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <span className="text-[#F5F0E8]">{error}</span>
-                  </motion.div>
-                )}
-
-                {selectedFile && !error && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-6 p-5 rounded-xl bg-[#0A0A0A]/60 border border-[#C9A84C]/35 flex flex-col gap-5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <CheckCircle className="w-5 h-5 text-[#C9A84C] shrink-0" />
-                        <span className="text-[#F5F0E8] text-sm font-mono truncate">
-                          {selectedFile.name}
-                        </span>
-                      </div>
-                      <span className="text-[#34D399] text-xs font-bold tracking-widest uppercase bg-[#2C4A2E]/20 px-3 py-1 rounded border border-[#2C4A2E]/50">
-                        Ready to analyze
-                      </span>
+                    <div className="w-16 h-16 rounded-full bg-[#0A0A0A] border border-[#C9A84C]/30 flex items-center justify-center shadow-gold-soft group-hover:border-[#C9A84C] transition-colors">
+                      <Upload className="w-8 h-8 text-[#C9A84C]" />
                     </div>
 
-                    <button
-                      onClick={triggerAnalysis}
-                      className="w-full bg-[#C9A84C] hover:bg-[#D9B85C] text-[#0A0A0A] text-lg font-cinzel font-bold tracking-widest py-4 rounded-lg transition-all duration-300 shadow-[0_0_25px_rgba(201,168,76,0.3)] uppercase hover:scale-[1.01]"
+                    <div className="text-center">
+                      <p className="text-2xl font-serif text-[#F5F0E8] font-bold mb-2">
+                        {isDragging ? 'Relinquish contract here' : 'Upload your contract'}
+                      </p>
+                      <p className="text-base text-[#F5F0E8] leading-relaxed max-w-sm mx-auto">
+                        PDF up to 20MB — Employment, Freelance, SaaS, Rental, Privacy Policy
+                      </p>
+                    </div>
+
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,application/pdf"
+                      className="hidden"
+                      onChange={onFileChange}
+                    />
+                  </div>
+
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-4 flex items-start gap-3 bg-[#8B0000]/10 border border-[#8B0000]/30 rounded-xl px-4 py-3 text-red-400 text-xs"
                     >
-                      Analyze Contract
-                    </button>
-                  </motion.div>
-                )}
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span className="text-[#F5F0E8]">{error}</span>
+                    </motion.div>
+                  )}
+
+                  {selectedFile && !error && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-6 p-5 rounded-xl bg-[#0A0A0A]/60 border border-[#C9A84C]/35 flex flex-col gap-5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <CheckCircle className="w-5 h-5 text-[#C9A84C] shrink-0" />
+                          <span className="text-[#F5F0E8] text-sm font-mono truncate">
+                            {selectedFile.name}
+                          </span>
+                        </div>
+                        <span className="text-[#34D399] text-xs font-bold tracking-widest uppercase bg-[#2C4A2E]/20 px-3 py-1 rounded border border-[#2C4A2E]/50">
+                          Ready to analyze
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={triggerAnalysis}
+                        className="w-full bg-[#C9A84C] hover:bg-[#D9B85C] text-[#0A0A0A] text-lg font-cinzel font-bold tracking-widest py-4 rounded-lg transition-all duration-300 shadow-[0_0_25px_rgba(201,168,76,0.3)] uppercase hover:scale-[1.01]"
+                      >
+                        Analyze Contract
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+
+            </div>
+          </div>
+
+          <div className="h-6" />
+        </div>
+
+        {/* ── PART 4 — FEATURE CARDS (BIGGER) ── */}
+        <section className="relative z-10 w-full max-w-7xl mx-auto px-6 py-24 border-t border-[#C9A84C]/15 bg-transparent">
+
+          <div className="text-center mb-16">
+            <span className="text-xs text-[#C9A84C] font-mono tracking-widest uppercase border border-[#C9A84C]/25 rounded-full px-4.5 py-1.5 bg-[#111111] mb-4 inline-block">
+              Core Chambers
+            </span>
+            <h2 className="font-serif italic text-4xl text-[#F5F0E8] font-bold">
+              The Interactive Courtroom Infrastructure
+            </h2>
+          </div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-60px' }}
+            variants={{
+              hidden: {},
+              show: {
+                transition: { staggerChildren: 0.15 },
+              },
+            }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"
+          >
+            {/* Card 1: The Defender */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              }}
+              whileHover={{ y: -6 }}
+              className="bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#8B0000] rounded-xl p-8 min-h-[240px] flex flex-col gap-4.5 shadow-md hover:shadow-[0_0_30px_rgba(201,168,76,0.15)] transition-all duration-300 relative"
+            >
+              <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#8B0000]/20" />
+              <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#8B0000]/25 flex items-center justify-center shadow-md">
+                <Shield className="w-8 h-8 text-[#8B0000]" />
+              </div>
+              <div>
+                <h3 className="font-serif italic text-2xl text-[#8B0000] font-bold mb-2">
+                  The Defender
+                </h3>
+                <p className="text-base text-[#F5F0E8] leading-relaxed mb-1.5 font-medium">
+                  Finds every clause designed to restrict or harm you
+                </p>
+                <p className="text-base text-[#F5F0E8] leading-relaxed opacity-75">
+                  Non-compete, IP transfer, termination traps and hidden liabilities
+                </p>
               </div>
             </motion.div>
 
+            {/* Card 2: The Prosecutor */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              }}
+              whileHover={{ y: -6 }}
+              className="bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#1B3A5C] rounded-xl p-8 min-h-[240px] flex flex-col gap-4.5 shadow-md hover:shadow-[0_0_30px_rgba(201,168,76,0.15)] transition-all duration-300 relative"
+            >
+              <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1B3A5C]/20" />
+              <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#1B3A5C]/25 flex items-center justify-center shadow-md">
+                <Briefcase className="w-8 h-8 text-[#1B3A5C]" />
+              </div>
+              <div>
+                <h3 className="font-serif italic text-2xl text-[#1B3A5C] font-bold mb-2">
+                  The Prosecutor
+                </h3>
+                <p className="text-base text-[#F5F0E8] leading-relaxed mb-1.5 font-medium">
+                  Reveals the corporate strategy behind each term
+                </p>
+                <p className="text-base text-[#F5F0E8] leading-relaxed opacity-75">
+                  Understand why every clause was written and what it protects
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Card 3: Judge AI */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              }}
+              whileHover={{ y: -6 }}
+              className="bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 min-h-[240px] flex flex-col gap-4.5 shadow-md hover:shadow-[0_0_30px_rgba(201,168,76,0.15)] transition-all duration-300 relative"
+            >
+              <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#C9A84C]/20" />
+              <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center shadow-md">
+                <Scale className="w-8 h-8 text-[#C9A84C]" />
+              </div>
+              <div>
+                <h3 className="font-serif italic text-2xl text-[#C9A84C] font-bold mb-2">
+                  Judge AI
+                </h3>
+                <p className="text-base text-[#F5F0E8] leading-relaxed mb-1.5 font-medium">
+                  Delivers neutral verdicts with negotiation tactics
+                </p>
+                <p className="text-base text-[#F5F0E8] leading-relaxed opacity-75">
+                  Get exact counter-clauses to send back before you sign
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Card 4: Time Machine */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              }}
+              whileHover={{ y: -6 }}
+              className="bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 min-h-[240px] flex flex-col gap-4.5 shadow-md hover:shadow-[0_0_30px_rgba(201,168,76,0.15)] transition-all duration-300 relative"
+            >
+              <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#C9A84C]/20" />
+              <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center shadow-md">
+                <Clock className="w-8 h-8 text-[#C9A84C]" />
+              </div>
+              <div>
+                <h3 className="font-serif italic text-2xl text-[#C9A84C] font-bold mb-2">
+                  Time Machine
+                </h3>
+                <p className="text-base text-[#F5F0E8] leading-relaxed mb-1.5 font-medium">
+                  Simulates your life 2 years after signing this contract
+                </p>
+                <p className="text-base text-[#F5F0E8] leading-relaxed opacity-75">
+                  Month-by-month consequence timeline across best, realistic and worst cases
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* ── PART 5 — HOW IT WORKS SECTION ── */}
+        <section className="relative z-10 w-full max-w-7xl mx-auto px-6 py-24 border-t border-[#C9A84C]/15 bg-transparent">
+
+          <div className="text-center mb-20">
+            <h2 className="font-serif italic text-4xl text-[#C9A84C] font-bold mb-2">
+              How LexGuard Works
+            </h2>
+            <div className="w-20 h-[1px] bg-[#C9A84C]/35 mx-auto mt-4" />
           </div>
-        </div>
 
-        <div className="h-6" />
-      </div>
-
-      {/* ── PART 4 — FEATURE CARDS (BIGGER) ── */}
-      <section className="relative z-10 w-full max-w-7xl mx-auto px-6 py-24 border-t border-[#C9A84C]/15 bg-[#0A0A0A]">
-        
-        <div className="text-center mb-16">
-          <span className="text-xs text-[#C9A84C] font-mono tracking-widest uppercase border border-[#C9A84C]/25 rounded-full px-4.5 py-1.5 bg-[#111111] mb-4 inline-block">
-            Core Chambers
-          </span>
-          <h2 className="font-serif italic text-4xl text-[#F5F0E8] font-bold">
-            The Interactive Courtroom Infrastructure
-          </h2>
-        </div>
-
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-60px' }}
-          variants={{
-            hidden: {},
-            show: {
-              transition: { staggerChildren: 0.15 },
-            },
-          }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6"
-        >
-          {/* Card 1: The Defender */}
           <motion.div
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, margin: '-60px' }}
             variants={{
-              hidden: { opacity: 0, y: 30 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              hidden: {},
+              show: {
+                transition: { staggerChildren: 0.2 },
+              },
             }}
-            whileHover={{ y: -6 }}
-            className="bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#8B0000] rounded-xl p-8 min-h-[240px] flex flex-col gap-4.5 shadow-md hover:shadow-[0_0_30px_rgba(201,168,76,0.15)] transition-all duration-300 relative"
+            className="flex flex-col md:flex-row items-stretch justify-between gap-6 relative"
           >
-            <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#8B0000]/20" />
-            <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#8B0000]/25 flex items-center justify-center shadow-md">
-              <Shield className="w-8 h-8 text-[#8B0000]" />
-            </div>
-            <div>
-              <h3 className="font-serif italic text-2xl text-[#8B0000] font-bold mb-2">
-                The Defender
+            {/* Step 1 */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              }}
+              className="flex-1 bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 relative flex flex-col gap-4"
+            >
+              <span className="font-serif text-6xl text-[#C9A84C]/30 font-bold block select-none">
+                01
+              </span>
+              <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center">
+                <UploadCloud className="w-8 h-8 text-[#C9A84C]" />
+              </div>
+              <h3 className="text-2xl font-serif text-[#F5F0E8] font-bold">
+                Upload Your Contract
               </h3>
-              <p className="text-base text-[#F5F0E8] leading-relaxed mb-1.5 font-medium">
-                Finds every clause designed to restrict or harm you
+              <p className="text-base text-[#F5F0E8] leading-relaxed opacity-90">
+                Drop any PDF contract — employment agreements, freelance terms, SaaS subscriptions, rental agreements, or privacy policies.
               </p>
-              <p className="text-base text-[#F5F0E8] leading-relaxed opacity-75">
-                Non-compete, IP transfer, termination traps and hidden liabilities
-              </p>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Card 2: The Prosecutor */}
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
-            whileHover={{ y: -6 }}
-            className="bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#1B3A5C] rounded-xl p-8 min-h-[240px] flex flex-col gap-4.5 shadow-md hover:shadow-[0_0_30px_rgba(201,168,76,0.15)] transition-all duration-300 relative"
-          >
-            <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#1B3A5C]/20" />
-            <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#1B3A5C]/25 flex items-center justify-center shadow-md">
-              <Briefcase className="w-8 h-8 text-[#1B3A5C]" />
+            {/* Connection Arrow 1 */}
+            <div className="hidden md:flex items-center justify-center shrink-0 self-center">
+              <span className="text-3xl text-[#C9A84C] font-bold select-none px-2 animate-pulse">→</span>
             </div>
-            <div>
-              <h3 className="font-serif italic text-2xl text-[#1B3A5C] font-bold mb-2">
-                The Prosecutor
+
+            {/* Step 2 */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              }}
+              className="flex-1 bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 relative flex flex-col gap-4"
+            >
+              <span className="font-serif text-6xl text-[#C9A84C]/30 font-bold block select-none">
+                02
+              </span>
+              <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center">
+                <Cpu className="w-8 h-8 text-[#C9A84C]" />
+              </div>
+              <h3 className="text-2xl font-serif text-[#F5F0E8] font-bold">
+                AI Agents Debate Every Clause
               </h3>
-              <p className="text-base text-[#F5F0E8] leading-relaxed mb-1.5 font-medium">
-                Reveals the corporate strategy behind each term
+              <p className="text-base text-[#F5F0E8] leading-relaxed opacity-90">
+                Three specialized AI agents — The Defender, The Prosecutor, and Judge AI — analyze each risky clause from opposing legal perspectives.
               </p>
-              <p className="text-base text-[#F5F0E8] leading-relaxed opacity-75">
-                Understand why every clause was written and what it protects
-              </p>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Card 3: Judge AI */}
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
-            whileHover={{ y: -6 }}
-            className="bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 min-h-[240px] flex flex-col gap-4.5 shadow-md hover:shadow-[0_0_30px_rgba(201,168,76,0.15)] transition-all duration-300 relative"
-          >
-            <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#C9A84C]/20" />
-            <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center shadow-md">
-              <Scale className="w-8 h-8 text-[#C9A84C]" />
+            {/* Connection Arrow 2 */}
+            <div className="hidden md:flex items-center justify-center shrink-0 self-center">
+              <span className="text-3xl text-[#C9A84C] font-bold select-none px-2 animate-pulse">→</span>
             </div>
-            <div>
-              <h3 className="font-serif italic text-2xl text-[#C9A84C] font-bold mb-2">
-                Judge AI
+
+            {/* Step 3 */}
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+              }}
+              className="flex-1 bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 relative flex flex-col gap-4"
+            >
+              <span className="font-serif text-6xl text-[#C9A84C]/30 font-bold block select-none">
+                03
+              </span>
+              <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center">
+                <Eye className="w-8 h-8 text-[#C9A84C]" />
+              </div>
+              <h3 className="text-2xl font-serif text-[#F5F0E8] font-bold">
+                See Your Future Before Signing
               </h3>
-              <p className="text-base text-[#F5F0E8] leading-relaxed mb-1.5 font-medium">
-                Delivers neutral verdicts with negotiation tactics
+              <p className="text-base text-[#F5F0E8] leading-relaxed opacity-90">
+                The Contract Time Machine simulates month-by-month consequences for 2 years so you know exactly what you are agreeing to.
               </p>
-              <p className="text-base text-[#F5F0E8] leading-relaxed opacity-75">
-                Get exact counter-clauses to send back before you sign
-              </p>
-            </div>
+            </motion.div>
           </motion.div>
+        </section>
 
-          {/* Card 4: Time Machine */}
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
-            whileHover={{ y: -6 }}
-            className="bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 min-h-[240px] flex flex-col gap-4.5 shadow-md hover:shadow-[0_0_30px_rgba(201,168,76,0.15)] transition-all duration-300 relative"
-          >
-            <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#C9A84C]/20" />
-            <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center shadow-md">
-              <Clock className="w-8 h-8 text-[#C9A84C]" />
-            </div>
-            <div>
-              <h3 className="font-serif italic text-2xl text-[#C9A84C] font-bold mb-2">
-                Time Machine
-              </h3>
-              <p className="text-base text-[#F5F0E8] leading-relaxed mb-1.5 font-medium">
-                Simulates your life 2 years after signing this contract
-              </p>
-              <p className="text-base text-[#F5F0E8] leading-relaxed opacity-75">
-                Month-by-month consequence timeline across best, realistic and worst cases
-              </p>
-            </div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* ── PART 5 — HOW IT WORKS SECTION ── */}
-      <section className="relative z-10 w-full max-w-7xl mx-auto px-6 py-24 border-t border-[#C9A84C]/15 bg-[#0A0A0A]">
-        
-        <div className="text-center mb-20">
-          <h2 className="font-serif italic text-4xl text-[#C9A84C] font-bold mb-2">
-            How LexGuard Works
-          </h2>
-          <div className="w-20 h-[1px] bg-[#C9A84C]/35 mx-auto mt-4" />
-        </div>
-
-        <motion.div
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-60px' }}
-          variants={{
-            hidden: {},
-            show: {
-              transition: { staggerChildren: 0.2 },
-            },
-          }}
-          className="flex flex-col md:flex-row items-stretch justify-between gap-6 relative"
-        >
-          {/* Step 1 */}
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
-            className="flex-1 bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 relative flex flex-col gap-4"
-          >
-            <span className="font-serif text-6xl text-[#C9A84C]/30 font-bold block select-none">
-              01
-            </span>
-            <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center">
-              <UploadCloud className="w-8 h-8 text-[#C9A84C]" />
-            </div>
-            <h3 className="text-2xl font-serif text-[#F5F0E8] font-bold">
-              Upload Your Contract
-            </h3>
-            <p className="text-base text-[#F5F0E8] leading-relaxed opacity-90">
-              Drop any PDF contract — employment agreements, freelance terms, SaaS subscriptions, rental agreements, or privacy policies.
-            </p>
-          </motion.div>
-
-          {/* Connection Arrow 1 */}
-          <div className="hidden md:flex items-center justify-center shrink-0 self-center">
-            <span className="text-3xl text-[#C9A84C] font-bold select-none px-2 animate-pulse">→</span>
-          </div>
-
-          {/* Step 2 */}
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
-            className="flex-1 bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 relative flex flex-col gap-4"
-          >
-            <span className="font-serif text-6xl text-[#C9A84C]/30 font-bold block select-none">
-              02
-            </span>
-            <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center">
-              <Cpu className="w-8 h-8 text-[#C9A84C]" />
-            </div>
-            <h3 className="text-2xl font-serif text-[#F5F0E8] font-bold">
-              AI Agents Debate Every Clause
-            </h3>
-            <p className="text-base text-[#F5F0E8] leading-relaxed opacity-90">
-              Three specialized AI agents — The Defender, The Prosecutor, and Judge AI — analyze each risky clause from opposing legal perspectives.
-            </p>
-          </motion.div>
-
-          {/* Connection Arrow 2 */}
-          <div className="hidden md:flex items-center justify-center shrink-0 self-center">
-            <span className="text-3xl text-[#C9A84C] font-bold select-none px-2 animate-pulse">→</span>
-          </div>
-
-          {/* Step 3 */}
-          <motion.div
-            variants={{
-              hidden: { opacity: 0, y: 30 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-            }}
-            className="flex-1 bg-[#111111] border border-[#1A1A1A] border-t-4 border-t-[#C9A84C] rounded-xl p-8 relative flex flex-col gap-4"
-          >
-            <span className="font-serif text-6xl text-[#C9A84C]/30 font-bold block select-none">
-              03
-            </span>
-            <div className="w-14 h-14 rounded-lg bg-[#0A0A0A] border border-[#C9A84C]/25 flex items-center justify-center">
-              <Eye className="w-8 h-8 text-[#C9A84C]" />
-            </div>
-            <h3 className="text-2xl font-serif text-[#F5F0E8] font-bold">
-              See Your Future Before Signing
-            </h3>
-            <p className="text-base text-[#F5F0E8] leading-relaxed opacity-90">
-              The Contract Time Machine simulates month-by-month consequences for 2 years so you know exactly what you are agreeing to.
-            </p>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* ── PART 7: FOOTER ── */}
-      <footer className="relative z-10 w-full border-t border-[#C9A84C]/25 bg-[#111111]/30">
-        <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded bg-[#111111] border border-[#C9A84C]/35 flex items-center justify-center shadow-gold-soft">
-              <Gavel className="w-3.5 h-3.5 text-[#C9A84C]" />
-            </div>
-            <span className="font-cinzel text-lg font-bold tracking-wider text-[#C9A84C]">
-              LexGuard
-            </span>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-[#F5F0E8] font-sans font-medium tracking-wide">
-              Built for PromptWars 2026 — Google × Scaler School of Technology
-            </p>
-          </div>
-
-          <div className="md:text-right">
-            <span className="font-serif italic text-base text-[#C9A84C] font-semibold tracking-wide">
-              Sign informed. Not blind.
-            </span>
-          </div>
-        </div>
-      </footer>
-
-      {/* ── PART 6 — LOADING STATE ── */}
-      <AnimatePresence>
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#0A0A0A]/97 backdrop-blur-md flex flex-col items-center justify-center p-6 select-none"
-          >
-            {/* Gold particle animation backdrop */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-25">
-              <div className="absolute top-[10%] left-[20%] w-1.5 h-1.5 bg-[#C9A84C] rounded-full animate-ping" />
-              <div className="absolute bottom-[20%] left-[10%] w-2 h-2 bg-[#C9A84C] rounded-full animate-pulse" />
-              <div className="absolute top-[30%] right-[15%] w-1.5 h-1.5 bg-[#C9A84C] rounded-full animate-ping" />
-              <div className="absolute bottom-[10%] right-[25%] w-2.5 h-2.5 bg-[#C9A84C] rounded-full animate-pulse" />
+        {/* ── PART 7: FOOTER ── */}
+        <footer className="relative z-10 w-full border-t border-[#C9A84C]/25 bg-[#111111]/30 backdrop-blur-md">
+          <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded bg-[#111111] border border-[#C9A84C]/35 flex items-center justify-center shadow-gold-soft">
+                <Gavel className="w-3.5 h-3.5 text-[#C9A84C]" />
+              </div>
+              <span className="font-cinzel text-lg font-bold tracking-wider text-[#C9A84C]">
+                LexGuard
+              </span>
             </div>
 
-            {/* Core Scale representation block */}
-            <div className="relative w-36 h-36 flex items-center justify-center mb-8">
-              {/* Spinning/pulsating decorative gold ring */}
-              <div className="absolute inset-0 rounded-full border border-[#C9A84C]/25 animate-spin" style={{ animationDuration: '10s' }} />
-              <div className="absolute inset-2 rounded-full border border-dashed border-[#C9A84C]/15 animate-spin" style={{ animationDuration: '6s' }} />
-
-              {/* Vector Scales of Justice SVG */}
-              <svg
-                className="w-16 h-16 text-[#C9A84C] drop-shadow-[0_0_15px_rgba(201,168,76,0.5)]"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 3v17" />
-                <path d="M12 5l7 2" />
-                <path d="M12 5l-7 2" />
-                <path d="M19 7v5" />
-                <path d="M5 7v5" />
-                <path d="M19 12a3 3 0 0 1-6 0c0-1.66 1.34-3 3-3s3 1.34 3 3z" />
-                <path d="M5 12a3 3 0 0 1-6 0c0-1.66 1.34-3 3-3s3 1.34 3 3z" />
-                <path d="M4 20h16" />
-              </svg>
-            </div>
-
-            {/* Title / Sub */}
-            <div className="text-center mb-10 max-w-lg">
-              <h2 className="font-serif italic text-3xl text-[#C9A84C] mb-2 tracking-tight">
-                The AI Courtroom is in session...
-              </h2>
-              <p className="text-base text-[#F5F0E8] font-sans tracking-wide">
-                Analyzing your contract for hidden risks
+            <div className="text-center">
+              <p className="text-sm text-[#F5F0E8] font-sans font-medium tracking-wide">
+                Built for PromptWars 2026 — Google × Scaler School of Technology
               </p>
             </div>
 
-            {/* Steps panel */}
-            <div className="w-full max-w-[360px] bg-[#111111] border border-[#C9A84C]/25 rounded-xl p-6 shadow-gold-soft relative">
-              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#C9A84C]/35" />
-              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#C9A84C]/35" />
+            <div className="md:text-right">
+              <span className="font-serif italic text-base text-[#C9A84C] font-semibold tracking-wide">
+                Sign informed. Not blind.
+              </span>
+            </div>
+          </div>
+        </footer>
 
-              {LOADING_STEPS.map((step, idx) => {
-                const isPassed = idx < loadingStep
-                const isActive = idx === loadingStep
+        {/* ── PART 6 — LOADING STATE ── */}
+        <AnimatePresence>
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-[#0A0A0A]/97 backdrop-blur-md flex flex-col items-center justify-center p-6 select-none"
+            >
+              {/* Gold particle animation backdrop */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-25">
+                <div className="absolute top-[10%] left-[20%] w-1.5 h-1.5 bg-[#C9A84C] rounded-full animate-ping" />
+                <div className="absolute bottom-[20%] left-[10%] w-2 h-2 bg-[#C9A84C] rounded-full animate-pulse" />
+                <div className="absolute top-[30%] right-[15%] w-1.5 h-1.5 bg-[#C9A84C] rounded-full animate-ping" />
+                <div className="absolute bottom-[10%] right-[25%] w-2.5 h-2.5 bg-[#C9A84C] rounded-full animate-pulse" />
+              </div>
 
-                return (
-                  <div key={idx} className="flex items-center justify-between text-base font-sans py-1.5">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-sm shrink-0">{step.icon}</span>
-                      <span className={`truncate text-base ${isActive ? 'text-[#F5F0E8] font-bold' : isPassed ? 'text-[#F5F0E8]/60' : 'text-[#F5F0E8]'}`}>
-                        {step.label}
-                      </span>
-                    </div>
+              {/* Core Scale representation block */}
+              <div className="relative w-36 h-36 flex items-center justify-center mb-8">
+                <div className="absolute inset-0 rounded-full border border-[#C9A84C]/25 animate-spin" style={{ animationDuration: '10s' }} />
+                <div className="absolute inset-2 rounded-full border border-dashed border-[#C9A84C]/15 animate-spin" style={{ animationDuration: '6s' }} />
 
-                    {/* Completion Indicator */}
-                    <div
-                      className={`w-4 h-4 rounded-full border transition-all duration-300 flex items-center justify-center shrink-0 ${
-                        isPassed
+                <svg
+                  className="w-16 h-16 text-[#C9A84C] drop-shadow-[0_0_15px_rgba(201,168,76,0.5)]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 3v17" />
+                  <path d="M12 5l7 2" />
+                  <path d="M12 5l-7 2" />
+                  <path d="M19 7v5" />
+                  <path d="M5 7v5" />
+                  <path d="M19 12a3 3 0 0 1-6 0c0-1.66 1.34-3 3-3s3 1.34 3 3z" />
+                  <path d="M5 12a3 3 0 0 1-6 0c0-1.66 1.34-3 3-3s3 1.34 3 3z" />
+                  <path d="M4 20h16" />
+                </svg>
+              </div>
+
+              <div className="text-center mb-10 max-w-lg">
+                <h2 className="font-serif italic text-3xl text-[#C9A84C] mb-2 tracking-tight">
+                  The AI Courtroom is in session...
+                </h2>
+                <p className="text-base text-[#F5F0E8] font-sans tracking-wide">
+                  Analyzing your contract for hidden risks
+                </p>
+              </div>
+
+              <div className="w-full max-w-[360px] bg-[#111111] border border-[#C9A84C]/25 rounded-xl p-6 shadow-gold-soft relative">
+                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#C9A84C]/35" />
+                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#C9A84C]/35" />
+
+                {LOADING_STEPS.map((step, idx) => {
+                  const isPassed = idx < loadingStep
+                  const isActive = idx === loadingStep
+
+                  return (
+                    <div key={idx} className="flex items-center justify-between text-base font-sans py-1.5">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-sm shrink-0">{step.icon}</span>
+                        <span className={`truncate text-base ${isActive ? 'text-[#F5F0E8] font-bold' : isPassed ? 'text-[#F5F0E8]/60' : 'text-[#F5F0E8]'}`}>
+                          {step.label}
+                        </span>
+                      </div>
+                      <div
+                        className={`w-4 h-4 rounded-full border transition-all duration-300 flex items-center justify-center shrink-0 ${isPassed
                           ? 'bg-[#C9A84C] border-[#C9A84C]'
                           : isActive
-                          ? 'border-[#C9A84C] loading-step-pulse'
-                          : 'border-[#C9A84C]/20 bg-transparent'
-                      }`}
-                    >
-                      {isPassed && (
-                        <span className="text-[8px] text-[#0A0A0A] font-bold">✓</span>
-                      )}
+                            ? 'border-[#C9A84C] loading-step-pulse'
+                            : 'border-[#C9A84C]/20 bg-transparent'
+                          }`}
+                      >
+                        {isPassed && (
+                          <span className="text-[8px] text-[#0A0A0A] font-bold">✓</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
 
-            <span className="text-[10px] text-[#F5F0E8] font-mono tracking-widest mt-8 uppercase">
-              This usually takes 15-30 seconds
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              <span className="text-[10px] text-[#F5F0E8] font-mono tracking-widest mt-8 uppercase">
+                This usually takes 15-30 seconds
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+      </div>{/* end z-index wrapper */}
     </div>
   )
 }
