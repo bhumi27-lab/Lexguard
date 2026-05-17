@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #0A0E1A;
+    color: #F1F5F9;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar          { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track    { background: #0F1629; }
+  ::-webkit-scrollbar-thumb    { background: #1E2A45; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #1B4FD8; }
+}
+
+@layer components {
+  /* ── Glass card ── */
+  .glass-card {
+    background: rgba(20, 27, 45, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid #1E2A45;
+    border-radius: 12px;
+  }
+
+  /* ── Risk badges ── */
+  .badge-high {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(239,68,68,0.12);
+    color: #F87171;
+    border: 1px solid rgba(239,68,68,0.35);
+  }
+  .badge-medium {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(245,158,11,0.12);
+    color: #FCD34D;
+    border: 1px solid rgba(245,158,11,0.35);
+  }
+  .badge-low {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(16,185,129,0.12);
+    color: #34D399;
+    border: 1px solid rgba(16,185,129,0.35);
+  }
+
+  /* ── Skeleton shimmer ── */
+  .skeleton {
+    background: linear-gradient(90deg, #0F1629 0%, #1E2A45 50%, #0F1629 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 1.8s infinite linear;
+    border-radius: 6px;
+  }
+
+  /* ── Agent card borders ── */
+  .agent-defender  { border-left: 3px solid #EF4444; }
+  .agent-prosecutor { border-left: 3px solid #1B4FD8; }
+  .agent-judge      { border-left: 3px solid #10B981; }
+
+  /* ── Drop zone ── */
+  .drop-zone {
+    border: 2px dashed #1E2A45;
+    border-radius: 16px;
+    transition: all 0.25s ease;
+  }
+  .drop-zone.dragging {
+    border-color: #1B4FD8;
+    background: rgba(27,79,216,0.07);
+    box-shadow: 0 0 30px rgba(27,79,216,0.2), inset 0 0 30px rgba(27,79,216,0.05);
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 30px rgba(27,79,216,0.6), 0 0 60px rgba(27,79,216,0.3);
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+}
